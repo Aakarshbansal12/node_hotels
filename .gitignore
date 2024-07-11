@@ -1,0 +1,6 @@
+# Ignore node_modules directory
+node_modules/
+notes.js
+callback.js
+fs and os.js
+greeting.txt
