@@ -17,17 +17,29 @@ const express = require('express');
 const app = express();
 const db = require('./db'); // connect with the database
 require('dotenv').config();
+const passport=require('./auth');
 
 const bodyParser = require('body-parser'); // Middle ware of express.js
 app.use(bodyParser.json());
 
 const PORT=process.env.PORT || 3000;
 
-app.get('/', function (req, res) {
+//Middle ware function
+const logRequest=(req,res,next)=>{
+  console.log(`[${new Date().toLocaleString()}] Request made to : ${req.originalUrl}`);
+  next();
+}
+app.use(logRequest);
+
+app.use(passport.initialize());
+  
+const localAuthMiddleware= passport.authenticate('local',{session:false});
+app.get('/',logRequest, function (req, res) {
   res.send(' welcome to our restaurant');
+  console.log('data fetched from hotel');
 });
 
-app.get('/idli', function (req, res) {
+/*app.get('/idli', function (req, res) {
   var customized_idli={
     name :'rava idli',
     size :'10 cm diameter',
@@ -39,14 +51,14 @@ app.get('/idli', function (req, res) {
 
 app.post('/items',(req,res)=>{
   res.send('data saved');
-});
+});*/
 
 //Import the router file
 const personRoutes=require('./routes/personRoutes');
 const menuItemRoutes=require('./routes/menuItemRoutes');
 
 // Use the routes
-app.use('/person',personRoutes);
+app.use('/person',localAuthMiddleware,personRoutes);
 app.use('/menu',menuItemRoutes);
 
 app.listen(PORT, () => {
